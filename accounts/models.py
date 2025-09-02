@@ -1,14 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import (
-    AbstractBaseUser, PermissionsMixin, BaseUserManager
-)
+    AbstractBaseUser, 
+    PermissionsMixin, 
+    BaseUserManager
+    )
 from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
     """Manager for the custom User model using email as the unique identifier."""
 
-    def create_user(self, email, password=None, name=None, age=None, **extra_fields):
+    def create_user(self, email, password=None, name=None, age=None, bio=None, **extra_fields):
         if not email:
             raise ValueError("The Email must be set")
         email = self.normalize_email(email)
@@ -17,6 +19,7 @@ class UserManager(BaseUserManager):
             email=email,
             name=name or "",
             age=age,
+            bio=bio or "",
             **extra_fields
         )
 
@@ -28,7 +31,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, name=None, age=None, **extra_fields):
+    def create_superuser(self, email, password, name=None, age=None, bio=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -38,13 +41,14 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(email, password, name=name, age=age, **extra_fields)
+        return self.create_user(email, password, name=name, age=age, bio=bio, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True)
     age = models.PositiveSmallIntegerField(null=True, blank=True)
+    bio = models.TextField(blank=True,null=True)
 
     # Admin/permissions helpers
     is_active = models.BooleanField(default=True)
@@ -55,8 +59,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"          # Login with email
-    REQUIRED_FIELDS = ["name"]        # prompted by createsuperuser (age stays optional)
+    USERNAME_FIELD = "email"          
+    REQUIRED_FIELDS = ["name"]
 
     def __str__(self):
         return self.email
