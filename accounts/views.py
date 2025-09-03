@@ -23,7 +23,7 @@ def signup_view(request):
 class CustomLoginView(LoginView):
     template_name = "login.html"
     authentication_form = CustomAuthenticationForm
-    redirect_authenticated_user = False
+    redirect_authenticated_user = True
 
     def get_success_url(self):
         return reverse_lazy("home")  

@@ -11,8 +11,10 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
+        for field_name,field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control'})
+            if self.errors.get(field_name):
+                field.widget.attrs['class'] += ' is-invalid'
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -29,5 +31,7 @@ class CustomUserChangeForm(UserChangeForm):
 class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
+        for field_name,field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control'})
+            if self.errors.get(field_name):
+                field.widget.attrs['class'] += ' is-invalid'
