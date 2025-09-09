@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from .serializers import RegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 User = get_user_model()
@@ -40,3 +40,18 @@ class MeView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+    
+
+class HomeAPIView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        return Response({
+            "message": "Welcome to blog_app API",
+            "routes": {
+                "register": "/api/auth/register/",
+                "token": "/api/auth/token/",
+                "refresh": "/api/auth/token/refresh/",
+                "me": "/api/auth/me/"
+            }
+        })
