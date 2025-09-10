@@ -5,6 +5,12 @@ from django.contrib.auth.models import (
     BaseUserManager
     )
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+
+
+def validate_age(value):
+    if value < 10 or value > 80:
+        raise ValidationError("Age must be between 10 and 80.")
 
 
 class UserManager(BaseUserManager):
@@ -47,7 +53,10 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True)
-    age = models.PositiveSmallIntegerField(null=True, blank=True)
+    age = models.PositiveSmallIntegerField(null=True, 
+                                           blank=True,
+                                           validators=[validate_age]
+                                           )
     bio = models.TextField(blank=True,null=True)
 
     # Admin/permissions helpers
@@ -64,3 +73,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    

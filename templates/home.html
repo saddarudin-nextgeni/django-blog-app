@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if user.is_authenticated %}
+    <div class="mb-4">
+      <h3>Welcome, {{ user.name|default:user.email }}!</h3>
+      <p class="text-muted">Your feed will appear below.</p>
+    </div>
+
+    <!-- Placeholder for posts -->
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">No posts yet</h5>
+            <p class="card-text">Create your first post to see it here.</p>
+            <a href="#" class="btn btn-outline-primary">Create post</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <h1 class="mb-3">Welcome to Blog App</h1>
+      <p class="lead">Sign up or login to create and comment on posts.</p>
+      <a class="btn btn-primary me-2" href="{% url 'signup' %}">Sign Up</a>
+      <a class="btn btn-outline-primary" href="{% url 'login' %}">Login</a>
+    </div>
+  {% endif %}
+{% endblock %}
