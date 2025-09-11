@@ -1,10 +1,12 @@
+from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
+from .serializers import RegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer
+                          
 
 User = get_user_model()
 
@@ -30,7 +32,7 @@ class LogoutView(APIView):
         try:
             token = RefreshToken(refresh)
             token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
+            return Response({"detail": "Logout Successful."},status=status.HTTP_205_RESET_CONTENT)
         except TokenError as e:
             return Response({"detail": "Token is invalid or expired."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -41,17 +43,3 @@ class MeView(APIView):
     def get(self, request):
         return Response(UserSerializer(request.user).data)
     
-
-class HomeAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        return Response({
-            "message": "Welcome to blog_app API",
-            "routes": {
-                "register": "/api/auth/register/",
-                "token": "/api/auth/token/",
-                "refresh": "/api/auth/token/refresh/",
-                "me": "/api/auth/me/"
-            }
-        })
