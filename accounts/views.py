@@ -4,7 +4,6 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
 
 @login_required(login_url="login")
