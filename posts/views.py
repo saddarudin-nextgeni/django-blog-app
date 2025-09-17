@@ -38,3 +38,12 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
         post_pk = self.kwargs.get("pk")
         post = get_object_or_404(Post, pk=post_pk)
         serializer.save(author=self.request.user, post=post)
+
+class PostCreateAPIView(generics.CreateAPIView):
+    # POST /api/posts/create/
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
