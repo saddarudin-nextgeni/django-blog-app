@@ -1,14 +1,27 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, filters as drf_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Prefetch
 from .models import Post, Comment
 from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer
+from .filters import PostFilter
 
 class PostListAPIView(generics.ListAPIView):
     # GET /api/posts/
-    queryset = Post.objects.all().select_related("author").prefetch_related("comments", "likes").order_by("-created_at")
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.AllowAny]  # public API for now
+    filter_backends = [DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter]
+    filterset_class = PostFilter
+    search_fields = ["title", "content", "author_email"]
+    ordering_fields = ["created_at", "updated_at", "comments_count"]
+    ordering = ["-created_at"]
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # Annotate with comments count for filtering/sorting
+        return qs.annotate(comments_count=Count("comments", distinct=True),
+                           likes_count=Count("likes", distinct=True))
 
 class PostDetailAPIView(generics.RetrieveAPIView):
     # GET /api/posts/<int:pk>/
