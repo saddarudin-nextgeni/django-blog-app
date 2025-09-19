@@ -4,7 +4,8 @@ from .views import (
     PostDetailAPIView, 
     CommentListCreateAPIView, 
     PostCreateAPIView,
-    MyPostsListAPIView
+    MyPostsListAPIView,
+    PostUpdateDeleteAPIView,
     )
 
 urlpatterns = [
@@ -12,5 +13,6 @@ urlpatterns = [
     path("<int:pk>/", PostDetailAPIView.as_view(), name="post_detail"),
     path("<int:pk>/comments/", CommentListCreateAPIView.as_view(), name="post_comments"),
     path("create/", PostCreateAPIView.as_view(), name="post_create"),
+    path("<int:pk>/edit/", PostUpdateDeleteAPIView.as_view(), name="post_update_delete"),
     path("mine/", MyPostsListAPIView.as_view(), name="my_posts"),
 ]

@@ -5,6 +5,8 @@ from django.db.models import Count, Prefetch
 from .models import Post, Comment
 from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from .filters import PostFilter
+from .permissions import IsAuthorOrReadOnly
+
 
 class PostListAPIView(generics.ListAPIView):
     # GET /api/posts/
@@ -69,3 +71,11 @@ class MyPostsListAPIView(generics.ListAPIView):
             comments_count=Count("comments", distinct=True),
             likes_count=Count("likes", distinct=True)
         ).order_by("-created_at")
+    
+class PostUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
+    # GET /api/posts/<int:pk>/edit/
+    # PUT/PATCH /api/posts/<int:pk>/edit/
+    # DELETE /api/posts/<int:pk>/edit/
+    queryset = Post.objects.all().select_related("author")
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
