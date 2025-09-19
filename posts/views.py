@@ -10,7 +10,7 @@ class PostListAPIView(generics.ListAPIView):
     # GET /api/posts/
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [permissions.AllowAny]  # public API for now
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter]
     filterset_class = PostFilter
     search_fields = ["title", "content", "author_email"]
@@ -30,7 +30,7 @@ class PostDetailAPIView(generics.RetrieveAPIView):
         "likes"
     )
     serializer_class = PostDetailSerializer
-    permission_classes = [permissions.AllowAny]  # public API for now
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
     # GET /api/posts/<int:post_pk>/comments/
@@ -60,3 +60,14 @@ class PostCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+class MyPostsListAPIView(generics.ListAPIView):
+    # GET /api/posts/mine/
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user).annotate(
+            comments_count=Count("comments", distinct=True),
+            likes_count=Count("likes", distinct=True)
+        ).order_by("-created_at")
