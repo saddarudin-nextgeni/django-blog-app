@@ -1,6 +1,5 @@
 from django.db.models import Count, Q
 import django_filters
-from django_filters import filters
 from .models import Post
 
 # Postgres search imports

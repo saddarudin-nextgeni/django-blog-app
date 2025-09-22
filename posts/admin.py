@@ -12,21 +12,21 @@ class CommentsRangeFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return [
             ("0", "No comments"),
-            ("1-5", "1 to 5"),
-            ("6-10", "6 to 10"),
-            ("10+", "More than 10"),
+            ("1-50", "1 to 50"),
+            ("51-300", "51 to 300"),
+            ("300+", "More than 300"),
         ]
 
     def queryset(self, request, queryset):
         queryset = queryset.annotate(comments_count=Count("comments", distinct=True))
         if self.value() == "0":
             return queryset.filter(comments_count=0)
-        elif self.value() == "1-5":
-            return queryset.filter(comments_count__gte=1, comments_count__lte=5)
-        elif self.value() == "6-10":
-            return queryset.filter(comments_count__gte=6, comments_count__lte=10)
-        elif self.value() == "10+":
-            return queryset.filter(comments_count__gt=10)
+        elif self.value() == "1-50":
+            return queryset.filter(comments_count__gte=1, comments_count__lte=50)
+        elif self.value() == "51-300":
+            return queryset.filter(comments_count__gte=51, comments_count__lte=300)
+        elif self.value() == "300+":
+            return queryset.filter(comments_count__gt=300)
         return queryset
 
 
@@ -37,21 +37,21 @@ class LikesRangeFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return [
             ("0", "No likes"),
-            ("1-5", "1 to 5"),
-            ("6-10", "6 to 10"),
-            ("10+", "More than 10"),
+            ("1-50", "1 to 50"),
+            ("51-300", "51 to 300"),
+            ("300+", "More than 300"),
         ]
 
     def queryset(self, request, queryset):
         queryset = queryset.annotate(likes_count=Count("likes", distinct=True))
         if self.value() == "0":
             return queryset.filter(likes_count=0)
-        elif self.value() == "1-5":
-            return queryset.filter(likes_count__gte=1, likes_count__lte=5)
-        elif self.value() == "6-10":
-            return queryset.filter(likes_count__gte=6, likes_count__lte=10)
-        elif self.value() == "10+":
-            return queryset.filter(likes_count__gt=10)
+        elif self.value() == "1-50":
+            return queryset.filter(likes_count__gte=1, likes_count__lte=50)
+        elif self.value() == "51-300":
+            return queryset.filter(likes_count__gte=51, likes_count__lte=300)
+        elif self.value() == "300+":
+            return queryset.filter(likes_count__gt=300)
         return queryset
 
 
@@ -80,7 +80,7 @@ class HasCommentsFilter(admin.SimpleListFilter):
 class PostAdmin(admin.ModelAdmin):
     list_display = ("title", "author", "created_at", "comments_count", "likes_count")
     search_fields = ("title", "content", "author__email")
-    list_filter = ("created_at", "author", CommentsRangeFilter, LikesRangeFilter, HasCommentsFilter)
+    list_filter = ("created_at", CommentsRangeFilter, LikesRangeFilter, HasCommentsFilter)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
