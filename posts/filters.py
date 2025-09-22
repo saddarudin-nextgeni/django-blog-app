@@ -1,61 +1,105 @@
-import django_filters
 from django.db.models import Count, Q
+import django_filters
+from django_filters import filters
 from .models import Post
 
-class PostFilter(django_filters.FilterSet):
-    # filter by author's email
-    author_name = django_filters.CharFilter(field_name="author__email", lookup_expr="icontains")
+# Postgres search imports
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
-    # content contains
+class PostFilter(django_filters.FilterSet):
+    # combined search field
+    q = django_filters.CharFilter(method="filter_full_text", label="search")
+
+    # simple exact/contains filters
+    title = django_filters.CharFilter(field_name="title", lookup_expr="icontains")
+    author_email = django_filters.CharFilter(field_name="author__email", lookup_expr="icontains")
     content = django_filters.CharFilter(field_name="content", lookup_expr="icontains")
 
-    # created_at range
-    created_from = django_filters.DateFilter(field_name="created_at", lookup_expr="gte")
-    created_to   = django_filters.DateFilter(field_name="created_at", lookup_expr="lte")
+    # date range
+    date_from = django_filters.DateFilter(field_name="created_at", lookup_expr="gte")
+    date_to = django_filters.DateFilter(field_name="created_at", lookup_expr="lte")
 
-    # comment content search
-    comment = django_filters.CharFilter(method="filter_comment")
-
-    # number of comments (min and max)
+    # comment range
     min_comments = django_filters.NumberFilter(method="filter_min_comments")
     max_comments = django_filters.NumberFilter(method="filter_max_comments")
 
-    # has comments boolean
+    # likes range
+    min_likes = django_filters.NumberFilter(method="filter_min_likes")
+    max_likes = django_filters.NumberFilter(method="filter_max_likes")
+
+    # has_comments boolean
     has_comments = django_filters.BooleanFilter(method="filter_has_comments")
 
     class Meta:
         model = Post
-        fields = [
-            "author_name",
-            "content",
-            "created_from",
-            "created_to",
-            "comment",
-            "min_comments",
-            "max_comments",
-            "has_comments",
-        ]
+        fields = []  # we expose only the above custom filters
 
-    def filter_author_name_or_display(self, queryset, name, value):
-        # search email
-        return queryset.filter(
-            Q(author__email__icontains=value)
+    def _annotate_counts(self, queryset):
+        """
+        Annotate counts once to reuse in multiple filters.
+        """
+        return queryset.annotate(
+            comments_count=Count("comments", distinct=True),
+            likes_count=Count("likes", distinct=True),
         )
 
-    def filter_comment(self, queryset, name, value):
-        # Return posts that have at least one comment whose content matches value
-        return queryset.filter(comments__content__icontains=value).distinct()
-
     def filter_min_comments(self, queryset, name, value):
-        # assumes queryset will be annotated with comments_count 
-        return queryset.annotate(_comments_count=Count("comments")).filter(_comments_count__gte=value)
+        qs = self._annotate_counts(queryset)
+        return qs.filter(comments_count__gte=value)
 
     def filter_max_comments(self, queryset, name, value):
-        return queryset.annotate(_comments_count=Count("comments")).filter(_comments_count__lte=value)
+        qs = self._annotate_counts(queryset)
+        return qs.filter(comments_count__lte=value)
+
+    def filter_min_likes(self, queryset, name, value):
+        qs = self._annotate_counts(queryset)
+        return qs.filter(likes_count__gte=value)
+
+    def filter_max_likes(self, queryset, name, value):
+        qs = self._annotate_counts(queryset)
+        return qs.filter(likes_count__lte=value)
 
     def filter_has_comments(self, queryset, name, value):
+        qs = self._annotate_counts(queryset)
         if value:
-            return queryset.filter(comments__isnull=False).distinct()
+            return qs.filter(comments_count__gt=0)
         else:
-            # posts with no comments
-            return queryset.filter(comments__isnull=True)
+            return qs.filter(comments_count=0)
+
+    def filter_full_text(self, queryset, name, value):
+        """
+        Uses Postgres full-text search for longer queries (SearchVector + SearchQuery).
+        Falls back to icontains for short/substring queries (helps 'ad' match 'admin').
+        """
+        term = (value or "").strip()
+        if not term:
+            return queryset
+
+        # If the user typed a very short query (<= 3 chars) => use icontains so substrings match.
+        if len(term) <= 3:
+            return queryset.filter(
+                Q(title__icontains=term)
+                | Q(content__icontains=term)
+                | Q(author__email__icontains=term)
+            )
+
+        # Weight title higher than content and author.
+        sv = (
+            SearchVector("title", weight="A")
+            + SearchVector("content", weight="B")
+            + SearchVector("author__email", weight="C")
+        )
+        sq = SearchQuery(term)
+
+        # annotate rank and filter by matching entries, order by rank desc
+        qs = queryset.annotate(search=sv).annotate(rank=SearchRank(sv, sq)).filter(rank__gt=0.0).order_by("-rank")
+
+        # If full-text gives no result (rare), fallback to icontains to catch substrings
+        if qs.exists():
+            return qs
+        else:
+            return queryset.filter(
+                Q(title__icontains=term)
+                | Q(content__icontains=term)
+                | Q(author__email__icontains=term)
+            )
