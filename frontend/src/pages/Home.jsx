@@ -30,7 +30,7 @@ export default function Home() {
             {user ? (
               <Link to="/posts/create" className="btn btn-primary">Create Post</Link>
             ) : (
-              <button onClick={() => navigate('/login')} className="btn btn-outline-primary">Login to create</button>
+              <button onClick={() => navigate('/login', {state: {next: '/posts/create'}})} className="btn btn-outline-primary">Login to create</button>
             )}
           </div>
         </div>
@@ -40,16 +40,26 @@ export default function Home() {
         <div className="cards-grid cards-grid-centered">
           {posts.map(post => (
             
-              <article className="post-card" key={post.id}>
+              <article className="post-card" 
+              key={post.id}
+              style = {{cursor: 'pointer'}}
+              onClick ={()=> {
+                if (user){
+                  navigate(`/posts/${post.id}`);
+                }else{
+                  navigate('/login', {state: {next: `/posts/${post.id}`}});
+              }
+              }}
+              >
                 <div className="post-title">{post.title}</div>
                 <div className="post-meta">{post.author_name} • {new Date(post.created_at).toLocaleDateString()}</div>
-                <p className="mb-2">{post.content}...</p>
+                <p className="mb-2">{post.content}</p>
                 <div className="d-flex justify-content-between muted">
                   <span>{post.comments_count} comments</span>
                   <span>{post.likes_count} likes</span>
                 </div>
 
-                <div className="action-bar">
+                <div className="action-bar" onClick={e => e.stopPropagation()}>
                   <button
                     className={`action-btn action-like ${!user ? 'action-disabled' : ''}`}
                     onClick={() => user ? api.post(`/posts/${post.id}/like/`).then(()=>{/* refresh */}) : navigate('/login')}
