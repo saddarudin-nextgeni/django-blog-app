@@ -78,9 +78,26 @@ class HasCommentsFilter(admin.SimpleListFilter):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("title", "author", "created_at", "comments_count", "likes_count")
-    search_fields = ("title", "content", "author__email")
-    list_filter = ("created_at", CommentsRangeFilter, LikesRangeFilter, HasCommentsFilter)
+    list_display = (
+        "title", 
+        "author", 
+        "created_at", 
+        "comments_count", 
+        "likes_count",
+    )
+    search_fields = (
+        "title", 
+        "content", 
+        "author__email",
+        "comments__author__email",
+        "likes__user__email",
+    )
+    list_filter = (
+        "created_at", 
+        CommentsRangeFilter, 
+        LikesRangeFilter, 
+        HasCommentsFilter,
+    )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
