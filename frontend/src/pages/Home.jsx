@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext} from "react";
+import { FaThumbsUp, FaCommentAlt } from "react-icons/fa";
 import api from "../lib/api";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -7,13 +8,34 @@ import './Home.css';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
+  const [likedIds, setLikedIds] = useState([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get('/posts/').then(r => setPosts(r.data)).catch(()=>setPosts([]));
-  }, []);
+    if(user){
+    api.get(`/posts/?liked_by=${user.email}`).then(r => setLikedIds(r.data.map(p=>p.id))).catch(()=>setLikedIds([]));
+  } else {
+    setLikedIds([]);
+  }
+  }, [user]);
+
+  const handleLike = async (postId) => {
+    setLikedIds(prev => prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]);
+    try {
+      await api.post(`/posts/${postId}/like/`);
+    } catch {
+      // revert on error
+      setLikedIds(prev => prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]);
+    }
+  };
+
+  const formatCount = n => {
+  if (n >= 1000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + "K";
+  return n;
+};
 
   return (
     <div className="site-container d-flex gap-4">
@@ -54,24 +76,23 @@ export default function Home() {
                 <div className="post-title">{post.title}</div>
                 <div className="post-meta">{post.author_name} • {new Date(post.created_at).toLocaleDateString()}</div>
                 <p className="mb-2">{post.content}</p>
-                <div className="d-flex justify-content-between muted">
-                  <span>{post.comments_count} comments</span>
-                  <span>{post.likes_count} likes</span>
-                </div>
+    
 
                 <div className="action-bar" onClick={e => e.stopPropagation()}>
                   <button
-                    className={`action-btn action-like ${!user ? 'action-disabled' : ''}`}
-                    onClick={() => user ? api.post(`/posts/${post.id}/like/`).then(()=>{/* refresh */}) : navigate('/login')}
+                    className={`action-btn action-like ${!user ? 'action-disabled' : ''} ${likedIds.includes(post.id) ? 'liked' : ''}`} 
+                    onClick={() => user ? handleLike(post.id) : navigate('/login')}
                   >
-                    Like
+                    <FaThumbsUp style={{marginRight:6}} />
+                    {formatCount(post.likes_count)}
                   </button>
 
                   <button
                     className={`action-btn action-comment ${!user ? 'action-disabled' : ''}`}
                     onClick={() => user ? navigate(`/posts/${post.id}`) : navigate('/login')}
                   >
-                    Comment
+                    <FaCommentAlt style={{marginRight: 6}}/>
+                    {formatCount(post.comments_count)}
                   </button>
 
                   {user && user.email === post.author_name && (
