@@ -29,7 +29,6 @@ export default function Navbar() {
         {user ? (
           <>
             <span className="user-chip">Welcome {user.email}</span>
-            <Link to="/posts/create" className="nav-link">Create Post</Link>
             <Link to="/myposts" className="nav-link">My Posts</Link>
             <button onClick={handleLogout} className="btn-logout">Logout</button>
           </>

@@ -1,6 +1,6 @@
 .post-detail-container {
   min-height: 100vh;
-  background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
