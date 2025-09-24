@@ -10,10 +10,7 @@
   color: #fff;
 }
 
-/* left placeholder (keeps space) */
-.navbar-left {
-  /* empty for now */
-}
+
 
 /* center brand */
 .navbar-center {
@@ -72,3 +69,20 @@
   font-weight: 700;
 }
 .btn-login:hover { opacity: 0.95; }
+
+.btn-signup {
+  background: #22c55e;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-signup:hover {
+  background: #16a34a;
+  opacity: 0.95;
+}
