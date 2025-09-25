@@ -7,6 +7,7 @@ import Signup from "./pages/Signup";
 import PostCreate from "./pages/PostCreate";
 import Post from "./pages/Post";
 import MyPosts from "./pages/MyPosts";
+import Comments from "./pages/Comments";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/posts/create" element={<PostCreate />} />
           <Route path="/posts/:id" element={<Post />} />
+          <Route path="/posts/:id/comments" element={<Comments />} />
           <Route path="/myposts" element={<MyPosts />} />
         </Routes>
       </BrowserRouter>

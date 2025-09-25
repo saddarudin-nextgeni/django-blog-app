@@ -119,7 +119,7 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("id", "author", "post", "created_at")
+    list_display = ("id", "author", "post", "content", "created_at")
     search_fields = ("content", "author__email")
 
 

@@ -105,7 +105,14 @@ export default function Home() {
 
                   <button
                     className={`action-btn action-comment ${!user ? 'action-disabled' : ''}`}
-                    onClick={() => user ? navigate(`/posts/${post.id}`) : navigate('/login')}
+                    onClick={ e => {
+                      e.stopPropagation();
+                      if(user){
+                        navigate(`/posts/${post.id}/comments`);
+                      } else {
+                        navigate('/login', {state: {next: `/posts/${post.id}/comments`}});
+                    }
+                  }}
                   >
                     <FaCommentAlt style={{marginRight: 6}}/>
                     {formatCount(post.comments_count)}
