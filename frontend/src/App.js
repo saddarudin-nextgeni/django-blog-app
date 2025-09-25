@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { PostsProvider } from "./context/PostsContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -12,6 +13,7 @@ import Comments from "./pages/Comments";
 function App() {
   return (
     <AuthProvider>
+      <PostsProvider>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -24,6 +26,7 @@ function App() {
           <Route path="/myposts" element={<MyPosts />} />
         </Routes>
       </BrowserRouter>
+      </PostsProvider>
     </AuthProvider>
   );
 }

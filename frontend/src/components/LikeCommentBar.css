@@ -2,7 +2,9 @@
   display: flex;
   gap: 1.2rem;
   align-items: center;
+  justify-content: flex-end;
   margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .action-btn {
@@ -14,6 +16,9 @@
   font-size: 1rem;
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  text-align: center;
   background: #f3f4f6;
   color: #2563eb;
   transition: background 0.2s, color 0.2s;
@@ -42,4 +47,19 @@
 
 .action-comment:hover {
   opacity: 0.95;
+}
+
+.action-edit {
+  background: #f59e0b;
+  color: white;
+}
+.action-edit:hover {
+  background: #fbbf24;
+}
+.action-delete {
+  background: #ef4444;
+  color: white;
+}
+.action-delete:hover {
+  background: #f87171;
 }

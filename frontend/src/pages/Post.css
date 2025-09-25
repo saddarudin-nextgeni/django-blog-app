@@ -16,13 +16,6 @@
   width: 100%;
 }
 
-.like-comment-bar {
-  display: flex;
-  gap: 1.2rem;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 1.2rem;
-}
 
 .post-detail-title {
   margin-bottom: 0.5rem;

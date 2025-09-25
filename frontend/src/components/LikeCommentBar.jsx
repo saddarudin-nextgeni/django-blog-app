@@ -1,5 +1,4 @@
-import React from "react";
-import { FaThumbsUp, FaCommentAlt } from "react-icons/fa";
+import { FaThumbsUp, FaCommentAlt, FaEdit, FaTrash } from "react-icons/fa";
 import "./LikeCommentBar.css";
 
 export default function LikeCommentBar({
@@ -8,7 +7,9 @@ export default function LikeCommentBar({
   commentsCount,
   onLike,
   onComment,
-  disabled
+  disabled,
+  onEdit,
+  onDelete
 }) {
   // Helper to format numbers (e.g., 1.2K)
   const formatCount = n => {
@@ -36,6 +37,20 @@ export default function LikeCommentBar({
         <FaCommentAlt style={{ marginRight: 6 }} />
         {formatCount(commentsCount)}
       </button>
+      {onEdit && (
+        <button
+          className="action-btn action-edit"
+          onClick={onEdit}
+          type="button">
+          <FaEdit style={{marginRight: 6}}/>
+          </button>
+        )}
+      {onDelete && (
+        <button
+          className="action-btn action-delete"  onClick={onDelete} type="button">
+          <FaTrash style={{marginRight: 6}}/>
+          </button>
+        )}
     </div>
   );
 }

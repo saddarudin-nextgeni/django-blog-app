@@ -1,14 +1,11 @@
-import React, { useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { AuthContext } from "../context/AuthContext";
 import "./Signup.css";
 
-
-
-
 export default function Signup() {
-  const { login} = React.useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -18,19 +15,21 @@ export default function Signup() {
     bio: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
+    setLoading(true);
     try {
       await api.post("/auth/register/", {
         email: form.email,
@@ -41,23 +40,24 @@ export default function Signup() {
       });
 
       await login({ email: form.email, password: form.password });
-      navigate("/"); // Redirect to homepage after signup
+      navigate("/");
     } catch (err) {
       let msg = "Signup failed. Please check your details.";
-  if (err.response?.data) {
-    const data = err.response.data;
-    if (typeof data === "string") {
-      msg = data;
-    } else if (data.error) {
-      msg = data.error;
-    } else if (data.detail) {
-      msg = data.detail;
-    } else {
-      // Collect all field errors
-      msg = Object.values(data).flat().join(" ");
-    }
-  }
-  setError(msg);
+      if (err.response?.data) {
+        const data = err.response.data;
+        if (typeof data === "string") {
+          msg = data;
+        } else if (data.error) {
+          msg = data.error;
+        } else if (data.detail) {
+          msg = data.detail;
+        } else {
+          msg = Object.values(data).flat().join(" ");
+        }
+      }
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,7 +114,9 @@ export default function Signup() {
           onChange={handleChange}
         />
         {error && <div className="signup-error">{error}</div>}
-        <button type="submit">Sign Up</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing up..." : "Sign Up"}
+        </button>
       </form>
     </div>
   );
