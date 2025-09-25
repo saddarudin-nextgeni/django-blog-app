@@ -23,7 +23,23 @@ export default function Home() {
   }, [user]);
 
   const handleLike = async (postId) => {
-    setLikedIds(prev => prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]);
+    setLikedIds(prev => 
+      prev.includes(postId) 
+        ? prev.filter(id => id !== postId) 
+        : [...prev, postId]
+    );
+    setPosts(prev =>
+      prev.map(post =>
+        post.id === postId
+          ? {
+              ...post,
+              likes_count: likedIds.includes(postId)
+                ? post.likes_count - 1
+                : post.likes_count + 1,
+            }
+          : post
+      )
+    );
     try {
       await api.post(`/posts/${postId}/like/`);
     } catch {
