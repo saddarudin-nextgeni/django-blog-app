@@ -22,23 +22,8 @@ export default function Home() {
   return (
     <div className="site-container d-flex gap-4">
       <div style={{ flex: 1 }}>
-        <div
-          className={`search-wrap ${
-            searchOpen ? "search-open" : "search-collapsed"
-          }`}
-        >
-          <div className="search-box">
-            <button
-              className="btn-ghost"
-              onClick={() => setSearchOpen((v) => !v)}
-            >
-              <FiSearch size={18} />
-            </button>
-            <input
-              className="search-input"
-              placeholder="Search posts by title, content..."
-            />
-          </div>
+        
+          
 
           <div>
             {user ? (
@@ -56,7 +41,7 @@ export default function Home() {
               </button>
             )}
           </div>
-        </div>
+        
 
         <div className="cards-grid cards-grid-centered">
           {posts.map((post) => (
@@ -114,37 +99,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Right-side filters panel (desktop only) */}
-      <aside style={{ width: 260 }}>
-        <div className="filters-panel">
-          <h5>Filters</h5>
-          <div className="filter-row">
-            <label>Author email</label>
-            <input className="form-control" placeholder="author@example.com" />
-          </div>
-          <div className="filter-row">
-            <label>Date from</label>
-            <input type="date" className="form-control" />
-          </div>
-          <div className="filter-row">
-            <label>Has comments</label>
-            <select className="form-control">
-              <option value="">Any</option>
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
-          <div className="filter-row">
-            <label>Min comments</label>
-            <input type="number" className="form-control" />
-          </div>
-          {/* add more filters as needed */}
-          <div className="mt-3">
-            <button className="btn btn-sm btn-primary me-2">Apply</button>
-            <button className="btn btn-sm btn-outline-secondary">Clear</button>
-          </div>
-        </div>
-      </aside>
     </div>
   );
 }

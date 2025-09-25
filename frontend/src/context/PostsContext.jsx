@@ -88,16 +88,19 @@ export function PostsProvider({ children }) {
   };
 
   // Centralized delete handler
-  const handleDelete = async (postId, navigate) => {
-    if (!window.confirm('Delete Post?')) return;
-    try {
-      await api.delete(`/posts/${postId}/`);
-      setPosts(prev => prev.filter(p => p.id !== postId));
-      if (navigate) navigate("/");
-    } catch {
-      alert('Failed to delete post');
-    }
-  };
+const handleDelete = async (postId, navigate) => {
+  if (!window.confirm("Are you sure you want to delete this post?")) return;
+  try {
+    await api.delete(`/posts/${postId}/edit/`);
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+    setLikedIds((prev) => prev.filter((id) => id !== postId));
+    navigate("/");
+  } catch (err) {
+    alert("Failed to delete post.");
+  }
+};
+
+
 
   // Update comment count
   const incrementCommentCount = (postId) => {
@@ -115,6 +118,12 @@ export function PostsProvider({ children }) {
     navigate(`/posts/${postId}/edit`);
   };
 
+  const updatePost = (updatedPost) => {
+  setPosts((prev) =>
+    prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+  );
+};
+
   return (
     <PostsContext.Provider value={{
       posts,
@@ -128,6 +137,7 @@ export function PostsProvider({ children }) {
       handleComment,
       handleDelete,
       handleEdit,
+      updatePost,
       incrementCommentCount
     }}>
       {children}
