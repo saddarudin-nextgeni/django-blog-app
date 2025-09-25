@@ -1,11 +1,12 @@
 import React, { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Navbar.css";
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -15,7 +16,13 @@ export default function Navbar() {
   return (
     <nav className="navbar-custom">
       {/* left placeholder (can hold logo or nav items later) */}
-      <div className="navbar-left" />
+<div className="navbar-left">
+  {location.pathname !== "/" && (
+    <button className="btn-back" onClick={() => navigate(-1)}>
+      &#8592;
+    </button>
+  )}
+</div>
 
       {/* centered brand */}
       <div className="navbar-center">

@@ -16,6 +16,14 @@
   width: 100%;
 }
 
+.like-comment-bar {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1.2rem;
+}
+
 .post-detail-title {
   margin-bottom: 0.5rem;
   color: #333;
@@ -35,11 +43,6 @@
   white-space: pre-line;
 }
 
-.post-detail-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
 
 .post-detail-btn {
   padding: 0.5rem 1.2rem;
@@ -56,3 +59,4 @@
 .post-detail-btn:hover {
   background: linear-gradient(90deg, #fda085 0%, #f6d365 100%);
 }
+
