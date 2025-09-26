@@ -1,9 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext} from "react";
 import LikeCommentBar from "../components/LikeCommentBar";
 import { AuthContext } from "../context/AuthContext";
 import { PostsContext } from "../context/PostsContext";
 import { useNavigate, Link } from "react-router-dom";
-import { FiSearch } from "react-icons/fi";
 import "./Home.css";
 
 export default function Home() {
@@ -15,16 +14,12 @@ export default function Home() {
     handleDelete,
     handleEdit,
   } = useContext(PostsContext);
-  const [searchOpen, setSearchOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   return (
     <div className="site-container d-flex gap-4">
       <div style={{ flex: 1 }}>
-        
-          
-
           <div>
             {user ? (
               <Link to="/posts/create" className="btn btn-primary">

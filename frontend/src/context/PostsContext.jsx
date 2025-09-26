@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import api from "../lib/api";
 import { AuthContext } from "./AuthContext";
 
@@ -7,18 +7,21 @@ export const PostsContext = createContext();
 export function PostsProvider({ children }) {
   const [posts, setPosts] = useState([]);
   const [likedIds, setLikedIds] = useState([]);
+  const [searchFilters, setSearchFilters] = useState({});
   const { user } = useContext(AuthContext);
 
-  const fetchPosts = async () => {
-    try {
-      const res = await api.get("/posts/");
-      setPosts(res.data);
-    } catch {
-      setPosts([]);
-    }
-  };
+  // Fetch all posts (with optional filters/search)
+const fetchPosts = useCallback(async (filters = {}) => {
+  try {
+    const res = await api.get("/posts/", { params: filters });
+    setPosts(res.data);
+  } catch {
+    setPosts([]);
+  }
+}, []);
 
-   const fetchLikedPosts = async () => {
+
+   const fetchLikedPosts = useCallback(async () => {
     if (!user) return setLikedIds([]);
     try {
       const res = await api.get(`/posts/?liked_by=${user.email}`);
@@ -26,7 +29,7 @@ export function PostsProvider({ children }) {
     } catch {
       setLikedIds([]);
     }
-  };
+  }, [user]);
 
    const fetchSinglePost = async (id) => {
     try {
@@ -42,9 +45,13 @@ export function PostsProvider({ children }) {
   };
   // Fetch all posts and liked posts on mount or when user changes
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(searchFilters);
     fetchLikedPosts();
-  }, [user]);
+  }, [user, fetchPosts, fetchLikedPosts, searchFilters]);
+
+  const applyFilters = (filters) => {
+    setSearchFilters(filters);
+  };
 
   // Like/Unlike handler
   const handleLike = async (postId) => {
@@ -138,6 +145,8 @@ const handleDelete = async (postId, navigate) => {
       handleDelete,
       handleEdit,
       updatePost,
+      applyFilters,
+      searchFilters,
       incrementCommentCount
     }}>
       {children}

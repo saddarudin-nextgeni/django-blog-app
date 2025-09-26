@@ -12,6 +12,7 @@ export default function PostCreate() {
   const { user } = useContext(AuthContext);
   const nav = useNavigate();
   const { addPost } = useContext(PostsContext);
+  const TITLE_MAX = 255;
 
   // Redirect if not logged in
   useEffect(() => {
@@ -21,23 +22,34 @@ export default function PostCreate() {
   }, [user, nav]);
 
   const submit = async (e) => {
-    e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      alert("Title and content are required");
-      return;
-    }
-    setLoading(true);
-    try {
-      const r = await api.post("/posts/create/", { title, content });
-      addPost(r.data);
-      nav(`/posts/${r.data.id}`);
-    } catch {
-      alert("Create failed (are you logged in?)");
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
 
+  if (!title.trim() || !content.trim()) {
+    alert("Title and content are required");
+    return;
+  }
+
+  if (title.length > TITLE_MAX) {
+    alert(`Title cannot exceed ${TITLE_MAX} characters. Currently ${title.length}.`);
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const r = await api.post("/posts/create/", { title, content });
+    addPost(r.data);
+    nav(`/posts/${r.data.id}`);
+  } catch (err) {
+    // Show backend-provided error if available
+    if (err.response?.data) {
+      alert(`Error: ${JSON.stringify(err.response.data)}`);
+    } else {
+      alert("Create failed. Please try again.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   if (!user) return null; // prevent rendering until redirect
 
   return (
@@ -52,6 +64,9 @@ export default function PostCreate() {
             placeholder="Enter a title"
             required
           />
+          <small style={{ color: title.length > TITLE_MAX ? "red" : "gray" }}>
+  {title.length}/{TITLE_MAX} characters
+</small>
         </label>
 
         <label>
