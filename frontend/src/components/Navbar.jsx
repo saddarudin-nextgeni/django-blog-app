@@ -40,7 +40,7 @@ export default function Navbar({ onSearch }) {
             &#8592;
           </button>
         )}
-{/* 
+
         {user && (
           <form onSubmit={handleSubmit} className="navbar-search">
             <input
@@ -60,7 +60,7 @@ export default function Navbar({ onSearch }) {
               Search
             </button>
           </form>
-        )} */}
+        )}
       </div>
 
       {/* CENTER COLUMN: brand */}
