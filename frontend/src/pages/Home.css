@@ -54,6 +54,12 @@
   font-weight: 700;
   font-size: 1.05rem;
   margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  /* show max 4 lines */
+  line-clamp: 4; /* standard property for compatibility */
+  -webkit-box-orient: vertical;
 }
 
 .post-meta {
