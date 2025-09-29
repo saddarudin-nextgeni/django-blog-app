@@ -1,6 +1,6 @@
 .post-detail-container {
   min-height: 100vh;
-  background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,8 +20,12 @@
   margin-bottom: 0.5rem;
   color: #333;
   font-weight: 700;
+  font-size: 1.5rem;
+  word-wrap: break-word;      /* ✅ old syntax for wide support */
+  overflow-wrap: break-word;  /* ✅ modern browsers */
+  white-space: normal;        /* ✅ allow wrapping to multiple lines */
+  line-height: 1.3;           /* ✅ improve readability */
 }
-
 .post-detail-meta {
   color: #888;
   font-size: 0.95rem;
@@ -35,11 +39,6 @@
   white-space: pre-line;
 }
 
-.post-detail-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
 
 .post-detail-btn {
   padding: 0.5rem 1.2rem;
@@ -56,3 +55,4 @@
 .post-detail-btn:hover {
   background: linear-gradient(90deg, #fda085 0%, #f6d365 100%);
 }
+

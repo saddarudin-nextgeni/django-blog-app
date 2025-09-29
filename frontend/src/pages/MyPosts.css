@@ -1,0 +1,45 @@
+.my-posts-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(60, 60, 60, 0.10);
+}
+
+.my-posts-container h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #2563eb;
+  text-align: center;
+}
+
+.no-posts {
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+
+.my-posts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.my-post-title-item {
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  color: #1e40af;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.my-post-title-item:hover {
+  background: #e0e7ff;
+}
