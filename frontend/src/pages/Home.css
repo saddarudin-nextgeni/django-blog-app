@@ -54,6 +54,12 @@
   font-weight: 700;
   font-size: 1.05rem;
   margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  /* show max 4 lines */
+  line-clamp: 4; /* standard property for compatibility */
+  -webkit-box-orient: vertical;
 }
 
 .post-meta {
@@ -77,18 +83,6 @@
 }
 
 
-/* action buttons */
-.action-bar{ margin-top:auto; display:flex; gap:8px; align-items:center; }
-.action-btn{
-  border:none; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9rem;
-}
-.action-like{ background: linear-gradient(90deg, #ff7a7a, #ff4d4d); color:white; }
-.action-comment{ background: linear-gradient(90deg,#34d399,#10b981); color:white; }
-.action-edit{ background: #f59e0b; color:white; }
-.action-delete{ background: #ef4444; color:white; }
-
-/* disabled look for guests */
-.action-disabled { opacity:0.6; pointer-events:none; filter:grayscale(.08); }
 
 /* filter panel on right */
 .filters-panel{

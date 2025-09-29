@@ -1,0 +1,65 @@
+.like-comment-bar {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.action-btn {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  text-align: center;
+  background: #f3f4f6;
+  color: #2563eb;
+  transition: background 0.2s, color 0.2s;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.action-like.liked {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 0 8px #2563eb55;
+  border: 2px solid #2563eb;
+}
+
+.action-like:not(.liked):hover {
+  background: #e0e7ff;
+}
+
+.action-comment {
+  background: linear-gradient(90deg,#34d399,#10b981);
+  color: white;
+}
+
+.action-comment:hover {
+  opacity: 0.95;
+}
+
+.action-edit {
+  background: #f59e0b;
+  color: white;
+}
+.action-edit:hover {
+  background: #fbbf24;
+}
+.action-delete {
+  background: #ef4444;
+  color: white;
+}
+.action-delete:hover {
+  background: #f87171;
+}

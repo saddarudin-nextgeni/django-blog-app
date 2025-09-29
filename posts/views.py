@@ -1,8 +1,11 @@
 from rest_framework import generics, permissions, filters as drf_filters
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Prefetch
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from .filters import PostFilter
 from .permissions import IsAuthorOrReadOnly
@@ -32,26 +35,6 @@ class PostDetailAPIView(generics.RetrieveAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
 
-class CommentListCreateAPIView(generics.ListCreateAPIView):
-    # GET /api/posts/<int:post_pk>/comments/
-    # POST /api/posts/<int:post_pk>/comments/
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [permissions.IsAuthenticated()]
-        return [permissions.AllowAny()]
-
-    def get_queryset(self):
-        post_pk = self.kwargs.get("pk")
-        return Comment.objects.filter(post_id=post_pk).select_related("author").order_by("-created_at")
-
-    def perform_create(self, serializer):
-        post_pk = self.kwargs.get("pk")
-        post = get_object_or_404(Post, pk=post_pk)
-        serializer.save(author=self.request.user, post=post)
-
 class PostCreateAPIView(generics.CreateAPIView):
     # POST /api/posts/create/
     queryset = Post.objects.all()
@@ -79,3 +62,36 @@ class PostUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all().select_related("author")
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+
+class CommentListCreateAPIView(generics.ListCreateAPIView):
+    # GET /api/posts/<int:post_pk>/comments/
+    # POST /api/posts/<int:post_pk>/comments/
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    def get_queryset(self):
+        post_pk = self.kwargs.get("pk")
+        return Comment.objects.filter(post_id=post_pk).select_related("author").order_by("-created_at")
+
+    def perform_create(self, serializer):
+        post_pk = self.kwargs.get("pk")
+        post = get_object_or_404(Post, pk=post_pk)
+        serializer.save(author=self.request.user, post=post)
+
+class LikeToggleAPIView(APIView):
+    # POST /api/posts/<int:post_pk>/like-toggle/
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+        like, created = Like.objects.get_or_create(post=post, user=user)
+        if not created:
+            like.delete()
+            return Response({"status": "unliked"}, status=status.HTTP_200_OK)
+        return Response({"status": "liked"}, status=status.HTTP_201_CREATED)

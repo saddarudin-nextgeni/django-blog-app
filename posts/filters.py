@@ -29,6 +29,10 @@ class PostFilter(django_filters.FilterSet):
     # has_comments boolean
     has_comments = django_filters.BooleanFilter(method="filter_has_comments")
 
+    # liked_by and commented_by filters
+    liked_by = django_filters.CharFilter(field_name="likes__user__email", lookup_expr="icontains")
+    commented_by = django_filters.CharFilter(field_name="comments__author__email", lookup_expr="icontains")
+
     class Meta:
         model = Post
         fields = []  # we expose only the above custom filters

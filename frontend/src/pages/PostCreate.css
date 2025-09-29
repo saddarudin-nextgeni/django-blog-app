@@ -1,0 +1,58 @@
+.post-create-container {
+  background: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(60, 60, 60, 0.15);
+  max-width: 450px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.post-create-container h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.post-create-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.post-create-container input,
+.post-create-container textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border 0.2s;
+  resize: none;
+}
+
+.post-create-container textarea {
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.post-create-container input:focus,
+.post-create-container textarea:focus {
+  border: 1.5px solid #a1c4fd;
+  outline: none;
+}
+
+.post-create-container button {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.post-create-container button:hover {
+  background: linear-gradient(90deg, #c2e9fb 0%, #a1c4fd 100%);
+}
