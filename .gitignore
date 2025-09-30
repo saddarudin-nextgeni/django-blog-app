@@ -1,5 +1,5 @@
 # --- Python / Django ---
-venv/
+.venv/
 .env
 __pycache__/
 *.pyc
@@ -9,6 +9,11 @@ __pycache__/
 /frontend/node_modules
 /frontend/build
 /frontend/coverage
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/package-lock.json
 
 # misc
 .DS_Store
