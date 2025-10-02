@@ -4,6 +4,7 @@ import api from "../lib/api";
 import { AuthContext } from "../context/AuthContext";
 import { PostsContext } from "../context/PostsContext";
 import "./Comments.css";
+import MentionInput from "../components/MentionInput";
 
 export default function Comments() {
   const { id } = useParams(); // post id
@@ -77,10 +78,10 @@ export default function Comments() {
       <h2>Comments</h2>
 
       <form className="comment-form" onSubmit={handleSubmit}>
-        <textarea
+        <MentionInput
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Add a comment..."
+          onChange={setContent}
+          placeholder="Write a comment..."
         />
         <button type="submit">Post</button>
       </form>

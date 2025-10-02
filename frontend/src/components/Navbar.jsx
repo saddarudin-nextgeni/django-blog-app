@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { PostsContext } from "../context/PostsContext"; 
 import { cleanFilters } from "../utils/filters";
+import MentionInput from "./MentionInput";
 import "./Navbar.css";
 
 export default function Navbar({ onSearch }) {
@@ -61,12 +62,12 @@ export default function Navbar({ onSearch }) {
 
         {user && (
           <form onSubmit={handleSubmit} className="navbar-search">
-            <input
-              type="text"
-              placeholder="Search posts..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+            <MentionInput
+  value={query}
+  onChange={setQuery}
+  placeholder="Search posts or @users..."
+/>
+
             <button
               type="button"
               className="btn-filters"

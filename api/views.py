@@ -5,7 +5,12 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from .serializers import RegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer
+from .serializers import (
+                            RegisterSerializer, 
+                            UserSerializer, 
+                            CustomTokenObtainPairSerializer,
+                            MentionUserSerializer
+                        )
                           
 
 User = get_user_model()
@@ -43,3 +48,14 @@ class MeView(APIView):
     def get(self, request):
         return Response(UserSerializer(request.user).data)
     
+
+# GET /api/users/mention/?q=...
+class MentionUserView(generics.ListAPIView):
+    serializer_class = MentionUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query = self.request.GET.get("q", "").strip()
+        if query:
+            return User.objects.filter(email__istartswith=query)[:10]
+        return User.objects.none()
