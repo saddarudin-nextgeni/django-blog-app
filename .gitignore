@@ -14,7 +14,6 @@ __pycache__/
 /frontend/.env.development.local
 /frontend/.env.test.local
 /frontend/.env.production.local
-/frontend/package-lock.json
 
 # misc
 .DS_Store
