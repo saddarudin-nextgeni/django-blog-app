@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import api from "../lib/api";
 import { AuthContext } from "./AuthContext";
+import { cleanFilters } from "../utils/filters";
 
 export const PostsContext = createContext();
 
@@ -13,13 +14,17 @@ export function PostsProvider({ children }) {
   // Fetch all posts (with optional filters/search)
 const fetchPosts = useCallback(async (filters = {}) => {
   try {
-    const res = await api.get("/posts/", { params: filters });
+    let params = cleanFilters(filters);
+    // If searching, ignore filters and just use query
+    if (params.q && params.q.trim()) {
+      params = { q: params.q };
+    }
+    const res = await api.get("/posts/", { params });
     setPosts(res.data);
   } catch {
     setPosts([]);
   }
 }, []);
-
 
    const fetchLikedPosts = useCallback(async () => {
     if (!user) return setLikedIds([]);

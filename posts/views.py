@@ -9,6 +9,7 @@ from .models import Post, Comment, Like
 from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from .filters import PostFilter
 from .permissions import IsAuthorOrReadOnly
+from .tasks import send_comment_notification
 
 
 class PostListAPIView(generics.ListAPIView):
@@ -81,7 +82,9 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         post_pk = self.kwargs.get("pk")
         post = get_object_or_404(Post, pk=post_pk)
-        serializer.save(author=self.request.user, post=post)
+        comment = serializer.save(author=self.request.user, post=post)
+        # Trigger async email notification
+        send_comment_notification.delay(post.id, comment.id)
 
 class LikeToggleAPIView(APIView):
     # POST /api/posts/<int:post_pk>/like-toggle/

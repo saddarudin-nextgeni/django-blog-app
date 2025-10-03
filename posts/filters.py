@@ -26,8 +26,7 @@ class PostFilter(django_filters.FilterSet):
     min_likes = django_filters.NumberFilter(method="filter_min_likes")
     max_likes = django_filters.NumberFilter(method="filter_max_likes")
 
-    # has_comments boolean
-    has_comments = django_filters.BooleanFilter(method="filter_has_comments")
+    
 
     # liked_by and commented_by filters
     liked_by = django_filters.CharFilter(field_name="likes__user__email", lookup_expr="icontains")
