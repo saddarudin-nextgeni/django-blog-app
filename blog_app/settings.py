@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-jp71by4_(s5b+krl0^bebrc+0a5rtp1t_)+!ju_3#suajg&sd8"
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')], default='')
 
 
 # Application definition
@@ -99,10 +99,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "blog_app.urls"
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",   # React dev server
-    "http://127.0.0.1:3000",   # optional, to use 127.0.0.1
-]
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=lambda v: [s.strip() for s in v.split(',')], default='')
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -130,7 +127,7 @@ WSGI_APPLICATION = "blog_app.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': config('ENGINE', default='django.db.backends.postgresql'),
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
@@ -198,12 +195,12 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Celery Configuration Options
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = config('CELERY_ACCEPT_CONTENT', cast=lambda v: [s.strip() for s in v.strip('[]').replace("'", "").split(',')], default="['json']")
+CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER', default='json')
+CELERY_RESULT_SERIALIZER = config('CELERY_RESULT_SERIALIZER', default='json')
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_TIMEZONE = 'Asia/Karachi'
+CELERY_TIMEZONE = config('CELERY_TIMEZONE', default='Asia/Karachi')
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
