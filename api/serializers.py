@@ -33,3 +33,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         data.update({"user": UserSerializer(self.user).data})
         return data
+    
+
+class MentionUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email"]
