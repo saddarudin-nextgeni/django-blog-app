@@ -16,11 +16,27 @@ class PostSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source="author.email", read_only=True)
+    replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ["id", "post", "author_name", "content", "created_at"]
+        fields = ["id", "post", "author_name", "content", "created_at", "replies"]
         read_only_fields = ["post", "author_name", "created_at"]
+    
+    def get_replies(self, obj):
+    # Only fetch replies if the comment is already saved and has replies
+        if not obj.id:
+            return []
+        if hasattr(obj, "replies") and obj.replies.exists():
+            return CommentSerializer(obj.replies.all(), many=True).data
+        return []
+    
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ["id", "content", "parent"]
+
 
 
 class PostDetailSerializer(serializers.ModelSerializer):

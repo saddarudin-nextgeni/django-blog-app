@@ -1,6 +1,9 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:17
+    container_name: postgres_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -10,11 +13,14 @@ services:
 
   redis:
     image: redis:7
-    ports: ['6379:6379']
+    container_name: redis
+    ports:
+      - "6379:6379"
 
   web:
     build:
       context: .
+    container_name: django_web
     command: gunicorn blog_app.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
@@ -24,35 +30,33 @@ services:
       - db
       - redis
     ports:
-      - '8000:8000'
+      - "8000:8000"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
   worker:
     build:
       context: .
+    container_name: celery_worker
     command: celery -A blog_app worker --loglevel=info
     env_file:
       - .env
     depends_on:
       - db
       - redis
-
-  beat:
-    build:
-      context: .
-    command: celery -A blog_app beat --loglevel=info
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
   frontend:
     build:
       context: ./frontend
+    container_name: frontend
     depends_on:
       - web
     ports:
-      - "3000:80"   # nginx serves build at port 80 in container -> map to 3000
+      - "3000:80"
 
 volumes:
   postgres_data:
