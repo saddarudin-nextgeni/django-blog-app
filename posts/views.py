@@ -67,7 +67,8 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         post_pk = self.kwargs.get("pk")
-        return Comment.objects.filter(post_id=post_pk).select_related("author").order_by("-created_at")
+        return Comment.objects.filter(post_id=post_pk, parent__isnull=True).select_related("author").order_by("-created_at")
+
 
     def perform_create(self, serializer):
         post_pk = self.kwargs.get("pk")

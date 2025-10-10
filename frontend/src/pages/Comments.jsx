@@ -15,6 +15,7 @@ export default function Comments() {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [replyingTo, setReplyingTo] = useState(null); // track which comment you’re replying to
   const navigate = useNavigate();
 
   // Redirect to login if not logged in
@@ -24,7 +25,7 @@ export default function Comments() {
     }
   }, [user, navigate, id]);
 
-  // Fetch comments
+  // Fetch all comments (with replies)
   useEffect(() => {
     if (user) {
       api
@@ -35,7 +36,7 @@ export default function Comments() {
     }
   }, [id, user]);
 
-  // Add new comment
+  // Submit new comment or reply
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -45,32 +46,105 @@ export default function Comments() {
       return;
     }
 
+    const payload = { content };
+    if (replyingTo) payload.parent = replyingTo;
+
     try {
-      // Optimistically update UI
+      // Optimistic UI update
       const tempId = `temp-${Date.now()}`;
       const newComment = {
         id: tempId,
+        post: Number(id),
         author_name: user.email,
         content,
         created_at: new Date().toISOString(),
+        replies: [],
       };
-      setComments((prev) => [newComment, ...prev]);
+
+      if (replyingTo) {
+        // Add reply under target comment
+        setComments((prev) =>
+          prev.map((c) =>
+            c.id === replyingTo
+              ? { ...c, replies: [newComment, ...c.replies] }
+              : c
+          )
+        );
+      } else {
+        // Add top-level comment
+        setComments((prev) => [newComment, ...prev]);
+      }
+
       setContent("");
+      setReplyingTo(null);
 
       // Send to backend
-      const resp = await api.post(`/posts/${id}/comments/`, { content });
+      const resp = await api.post(`/posts/${id}/comments/`, payload);
 
-      // Replace temp comment with real one from backend
-      setComments((prev) => [
-        resp.data,
-        ...prev.filter((c) => c.id !== tempId),
-      ]);
-
-      // Update global posts comment count
-      incrementCommentCount(Number(id));
+      // Replace temp with real
+      if (replyingTo) {
+        setComments((prev) =>
+          prev.map((c) =>
+            c.id === replyingTo
+              ? {
+                  ...c,
+                  replies: c.replies.map((r) =>
+                    r.id === tempId ? resp.data : r
+                  ),
+                }
+              : c
+          )
+        );
+      } else {
+        setComments((prev) =>
+          prev.map((c) => (c.id === tempId ? resp.data : c))
+        );
+        incrementCommentCount(Number(id));
+      }
     } catch {
       setError("Failed to add comment.");
     }
+  };
+
+  // Recursive comment component
+  const CommentItem = ({ comment }) => {
+    const [showReplies, setShowReplies] = useState(false);
+
+    return (
+      <li className="comment-item">
+        <div className="comment-header">
+          <span className="comment-author">{comment.author_name}</span>
+          <span className="comment-date">
+            {new Date(comment.created_at).toLocaleString()}
+          </span>
+        </div>
+
+        <div className="comment-content">{comment.content}</div>
+
+        <div className="comment-actions">
+          <button onClick={() => setReplyingTo(comment.id)}>Reply</button>
+
+          {comment.replies && comment.replies.length > 0 && (
+            <button
+              onClick={() => setShowReplies((prev) => !prev)}
+              className="view-replies-btn"
+            >
+              {showReplies
+                ? "Hide Replies"
+                : `View Replies (${comment.replies.length})`}
+            </button>
+          )}
+        </div>
+
+        {showReplies && comment.replies.length > 0 && (
+          <ul className="replies-list">
+            {comment.replies.map((reply) => (
+              <CommentItem key={reply.id} comment={reply} />
+            ))}
+          </ul>
+        )}
+      </li>
+    );
   };
 
   return (
@@ -78,33 +152,40 @@ export default function Comments() {
       <h2>Comments</h2>
 
       <form className="comment-form" onSubmit={handleSubmit}>
+        {replyingTo && (
+          <div className="replying-to">
+            Replying to comment #{replyingTo}
+            <button
+              type="button"
+              className="cancel-reply"
+              onClick={() => setReplyingTo(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         <MentionInput
           value={content}
           onChange={setContent}
-          placeholder="Write a comment..."
+          placeholder={
+            replyingTo ? "Write a reply..." : "Write a comment..."
+          }
         />
-        <button type="submit">Post</button>
+        <button type="submit">{replyingTo ? "Reply" : "Post"}</button>
       </form>
 
       {error && <div className="comment-error">{error}</div>}
 
       {loading ? (
         <div>Loading comments...</div>
+      ) : comments.length === 0 ? (
+        <div className="no-comments">No comments yet.</div>
       ) : (
         <ul className="comments-list">
-          {comments.length === 0 ? (
-            <li className="no-comments">No comments yet.</li>
-          ) : (
-            comments.map((comment) => (
-              <li key={comment.id} className="comment-item">
-                <div className="comment-author">{comment.author_name}</div>
-                <div className="comment-content">{comment.content}</div>
-                <div className="comment-date">
-                  {new Date(comment.created_at).toLocaleString()}
-                </div>
-              </li>
-            ))
-          )}
+          {comments.map((comment) => (
+            <CommentItem key={comment.id} comment={comment} />
+          ))}
         </ul>
       )}
     </div>
