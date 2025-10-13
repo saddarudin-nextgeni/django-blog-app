@@ -6,14 +6,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Prefetch
 from .models import Post, Comment, Like
-from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer
+from .serializers import CommentCreateSerializer, PostSerializer, PostDetailSerializer, CommentSerializer
 from .filters import PostFilter
 from .permissions import IsAuthorOrReadOnly
 from .tasks import send_comment_notification
 
 
 class PostListAPIView(generics.ListAPIView):
-    # GET /api/posts/
     queryset = Post.objects.all().annotate(
         comments_count=Count("comments", distinct=True),
         likes_count=Count("likes", distinct=True)
@@ -28,7 +27,6 @@ class PostListAPIView(generics.ListAPIView):
     
 
 class PostDetailAPIView(generics.RetrieveAPIView):
-    # GET /api/posts/<int:pk>/
     queryset = Post.objects.all().select_related("author").prefetch_related(
         Prefetch("comments", queryset=Comment.objects.select_related("author").order_by("-created_at")),
         "likes"
@@ -37,7 +35,6 @@ class PostDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
 
 class PostCreateAPIView(generics.CreateAPIView):
-    # POST /api/posts/create/
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -46,7 +43,6 @@ class PostCreateAPIView(generics.CreateAPIView):
         serializer.save(author=self.request.user)
 
 class MyPostsListAPIView(generics.ListAPIView):
-    # GET /api/posts/mine/
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -57,37 +53,43 @@ class MyPostsListAPIView(generics.ListAPIView):
         ).order_by("-created_at")
     
 class PostUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
-    # GET /api/posts/<int:pk>/edit/
-    # PUT/PATCH /api/posts/<int:pk>/edit/
-    # DELETE /api/posts/<int:pk>/edit/
     queryset = Post.objects.all().select_related("author")
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
-    # GET /api/posts/<int:post_pk>/comments/
-    # POST /api/posts/<int:post_pk>/comments/
-    serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get_permissions(self):
+    def get_serializer_class(self):
         if self.request.method == "POST":
-            return [permissions.IsAuthenticated()]
-        return [permissions.AllowAny()]
+            return CommentCreateSerializer
+        return CommentSerializer
 
     def get_queryset(self):
         post_pk = self.kwargs.get("pk")
-        return Comment.objects.filter(post_id=post_pk).select_related("author").order_by("-created_at")
+        return Comment.objects.filter(post_id=post_pk, parent__isnull=True).select_related("author").order_by("-created_at")
+
 
     def perform_create(self, serializer):
         post_pk = self.kwargs.get("pk")
         post = get_object_or_404(Post, pk=post_pk)
-        comment = serializer.save(author=self.request.user, post=post)
+        parent_id = self.request.data.get("parent")
+        parent = None
+        if parent_id:
+            parent = Comment.objects.filter(id=parent_id, post=post).first()
+        comment = serializer.save(author=self.request.user, post=post, parent=parent)
         # Trigger async email notification
-        send_comment_notification.delay(post.id, comment.id)
+        # send_comment_notification.delay(post.id, comment.id)
+
+class CommentReplyListAPIView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        parent_pk = self.kwargs.get("pk")
+        return Comment.objects.filter(parent_id=parent_pk).select_related("author").order_by("created_at")
 
 class LikeToggleAPIView(APIView):
-    # POST /api/posts/<int:post_pk>/like-toggle/
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
