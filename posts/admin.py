@@ -55,23 +55,7 @@ class LikesRangeFilter(admin.SimpleListFilter):
         return queryset
 
 
-class HasCommentsFilter(admin.SimpleListFilter):
-    title = "has comments"
-    parameter_name = "has_comments"
 
-    def lookups(self, request, model_admin):
-        return [
-            ("yes", "Yes"),
-            ("no", "No"),
-        ]
-
-    def queryset(self, request, queryset):
-        queryset = queryset.annotate(comments_count=Count("comments", distinct=True))
-        if self.value() == "yes":
-            return queryset.filter(comments_count__gt=0)
-        elif self.value() == "no":
-            return queryset.filter(comments_count=0)
-        return queryset
 
 
 # --- Post Admin ---
@@ -96,7 +80,6 @@ class PostAdmin(admin.ModelAdmin):
         "created_at", 
         CommentsRangeFilter, 
         LikesRangeFilter, 
-        HasCommentsFilter,
     )
 
     def get_queryset(self, request):

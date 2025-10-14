@@ -1,5 +1,7 @@
 # --- Python / Django ---
+.venv/
 .env
+.vscode/
 __pycache__/
 *.pyc
 *.pyo
@@ -8,6 +10,10 @@ __pycache__/
 /frontend/node_modules
 /frontend/build
 /frontend/coverage
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
 
 # misc
 .DS_Store
