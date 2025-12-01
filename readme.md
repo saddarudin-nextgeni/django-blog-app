@@ -79,7 +79,7 @@ A full-featured **Blogging Platform** built with **Django REST Framework**, **Po
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/django-blog-app.git
+git clone https://github.com/saddarudin-nextgeni/django-blog-app.git
 cd django-blog-app
 ```
 
