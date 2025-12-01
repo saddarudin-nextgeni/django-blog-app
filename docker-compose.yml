@@ -22,8 +22,9 @@ services:
     command: gunicorn blog_app.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles
     env_file:
-      - .env
+      - .env.docker
     depends_on:
       - db
       - redis
@@ -58,3 +59,4 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
